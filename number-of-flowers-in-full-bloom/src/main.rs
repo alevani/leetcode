@@ -3,10 +3,7 @@ use std::collections::HashMap;
 fn main() {
     println!(
         "{:?}",
-        Solution::full_bloom_flowers(
-            vec![vec![1, 6], vec![3, 7], vec![9, 12], vec![4, 13]],
-            vec![2, 3, 7, 11]
-        )
+        Solution::full_bloom_flowers(vec![vec![19, 37], vec![19, 38], vec![19,35]], vec![6,7,21,1,13,37,5,37,46,43])
     );
 }
 
@@ -26,55 +23,65 @@ impl Solution {
         first.sort();
         second.sort();
 
-        fn binary_search(into: Vec<i32>, index: &i32) -> i32 {
+        fn binary_search(into: Vec<i32>, index: &i32, r_done: bool) -> i32 {
             let mut len = into.len();
             let mut mid;
 
             let mut memory = into.clone();
-            let mut index_memory = 0;
+            let mut index_memory = len / 2 - 1;
+            let mut start = 0;
 
-            println!("INDEX: ____{index}");
+            println!("index____{index}");
             while len > 1 {
-                println!("len {len}");
-                
-                mid = len / 2 - 1;
-                println!("mid {mid}"); 
-                index_memory += mid;
-                
-                if &memory[mid] == index {
-                    println!("yeee 1");
-                    println!("{memory:?}");
-                    println!("exiting index_memory: {index_memory:?}");
-                    return index_memory as i32; // todo index_memory 
-                } 
-                else if &memory[mid] < index && &memory[mid + 1] > index {
-                    println!("yeee 2");
-                    println!("{memory:?}");
-                    println!("exiting index_memory: {index_memory:?}");
-                    return index_memory as i32 + 1; // todo index_memory 
-                }
+                mid = if len % 2 == 0 { len / 2 - 1} else { len / 2 };
+                // mid = len / 2 - 1;
 
-                else if &memory[mid] > index {
+                if &memory[mid] == index {
+                    println!("Equal");
+                    memory = if r_done && mid != 0{
+                        vec![memory[mid - 1]]
+                    } else {
+                        vec![memory[mid]]
+                    };
+                    println!("89 {index_memory:?}");
+                    index_memory -= if r_done && mid != 0 { 1 } else { 0 };
+                    println!("-- {index_memory:?}");
+                } else if &memory[mid] < index && &memory[mid + 1] > index {
+                    println!("In between");
+                    memory = vec![memory[mid]];
+                    // index_memory += mid;
+                } else if &memory[mid] >= index {
+                    println!("Lower");
                     memory = memory[0..=mid].to_vec();
-                    index_memory -= mid;
+                    index_memory = start;
                 } else {
+                    println!("Higher");
                     memory = memory[(mid + 1)..].to_vec();
                     index_memory += 1;
+                    start = index_memory;
                 }
-                println!("index_memory: {index_memory:?}");
-                println!("{memory:?}");
-                
+
                 len = memory.len();
             }
+
+            println!("memory: {memory:?}");
+
+          
             
-            println!("yeee 3");
-            println!("exiting index_memory: {index_memory:?}");
-            index_memory as i32 
+            if r_done && &memory[0] >= index {
+                println!("index_memory: {:?}", index_memory as i32 - 1);
+                index_memory as i32 - 1
+            } else {
+                println!("index_memory: {index_memory:?}");
+                index_memory as i32 
+            }
         }
 
         people
             .iter()
-            .map(|t| binary_search(first.clone(), t) - binary_search(second.clone(), t))
+            .map(|t| {
+                binary_search(first.clone(), t, false) - binary_search(second.clone(), t, true)
+            })
             .collect()
     }
 }
