@@ -13,16 +13,14 @@ fn main() {
 struct Solution;
 impl Solution {
     pub fn full_bloom_flowers(flowers: Vec<Vec<i32>>, people: Vec<i32>) -> Vec<i32> {
-        let mut answer = HashMap::<i32, i32>::new();
-
-        flowers.iter().for_each(|range| {
-            (range[0]..range[1] + 1).for_each(|x| *answer.entry(x).or_insert(0) += 1)
-        });
-        println!("{answer:?}");
         people
             .iter()
-            .map(|p| answer.get(p).unwrap_or(&0))
-            .copied()
+            .map(|t| {
+                flowers
+                    .iter()
+                    .map(|f| if &f[0] <= t { 1 } else { 0 } - if &f[1] < t { 1 } else { 0 })
+                    .sum::<i32>()
+            })
             .collect()
     }
 }
